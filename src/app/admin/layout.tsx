@@ -15,7 +15,7 @@ import { adminNavSections } from "../navigation";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-    title: `Server Admin - Pangolin`,
+    title: `Server Admin`,
     description: ""
 };
 

@@ -709,7 +709,7 @@
     "accessRoleRequiredRemove": "Before deleting this role, please select a new role to transfer existing members to.",
     "manage": "Manage",
     "sitesNotFound": "No sites found.",
-    "pangolinServerAdmin": "Server Admin - Pangolin",
+    "pangolinServerAdmin": "Server Admin",
     "licenseTierProfessional": "Professional License",
     "licenseTierEnterprise": "Enterprise License",
     "licenseTierCommercial": "Commercial License",

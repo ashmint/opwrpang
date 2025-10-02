@@ -709,7 +709,7 @@
     "accessRoleRequiredRemove": "Før du sletter denne rollen, vennligst velg en ny rolle å overføre eksisterende medlemmer til.",
     "manage": "Administrer",
     "sitesNotFound": "Ingen områder funnet.",
-    "pangolinServerAdmin": "Server Admin - Pangolin",
+    "pangolinServerAdmin": "Server Admin",
     "licenseTierProfessional": "Profesjonell lisens",
     "licenseTierEnterprise": "Bedriftslisens",
     "licenseTierCommercial": "Kommersiell lisens",
