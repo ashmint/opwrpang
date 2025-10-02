@@ -603,7 +603,7 @@
     "siteWgCompatibleAllClients": "Compatible with all WireGuard clients",
     "siteWgManualConfigurationRequired": "Manual configuration required",
     "userErrorNotAdminOrOwner": "User is not an admin or owner",
-    "pangolinSettings": "Settings - Pangolin",
+    "pangolinSettings": "Settings",
     "accessRoleYour": "Your role:",
     "accessRoleSelect2": "Select a role",
     "accessUserSelect": "Select a user",
