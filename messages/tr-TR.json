@@ -814,7 +814,7 @@
     "redirectUrl": "Yönlendirme URL'si",
     "redirectUrlAbout": "Yönlendirme URL'si Hakkında",
     "redirectUrlAboutDescription": "Bu, kimlik doğrulamasından sonra kullanıcıların yönlendirileceği URL'dir. Bu URL'yi kimlik sağlayıcınızın ayarlarında yapılandırmanız gerekir.",
-    "pangolinAuth": "Auth - Pangolin",
+    "pangolinAuth": "Auth",
     "verificationCodeLengthRequirements": "Doğrulama kodunuz 8 karakter olmalıdır.",
     "errorOccurred": "Bir hata oluştu",
     "emailErrorVerify": "E-posta doğrulanamadı: ",

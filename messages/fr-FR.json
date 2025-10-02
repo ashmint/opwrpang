@@ -814,7 +814,7 @@
     "redirectUrl": "URL de redirection",
     "redirectUrlAbout": "À propos de l'URL de redirection",
     "redirectUrlAboutDescription": "C'est l'URL vers laquelle les utilisateurs seront redirigés après l'authentification. Vous devez configurer cette URL dans les paramètres de votre fournisseur d'identité.",
-    "pangolinAuth": "Auth - Pangolin",
+    "pangolinAuth": "Auth",
     "verificationCodeLengthRequirements": "Votre code de vérification doit comporter 8 caractères.",
     "errorOccurred": "Une erreur s'est produite",
     "emailErrorVerify": "Échec de la vérification de l'e-mail :",
