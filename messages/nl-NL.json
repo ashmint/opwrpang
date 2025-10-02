@@ -924,7 +924,7 @@
     "inviteErrorExpired": "De uitnodiging is mogelijk verlopen",
     "inviteErrorRevoked": "De uitnodiging is mogelijk ingetrokken",
     "inviteErrorTypo": "Er kan een typefout zijn in de uitnodigingslink",
-    "pangolinSetup": "Setup - Pangolin",
+    "pangolinSetup": "Setup",
     "orgNameRequired": "Organisatienaam is vereist",
     "orgIdRequired": "Organisatie-ID is vereist",
     "orgErrorCreate": "Fout opgetreden tijdens het aanmaken org",

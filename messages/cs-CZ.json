@@ -924,7 +924,7 @@
     "inviteErrorExpired": "The invite may have expired",
     "inviteErrorRevoked": "The invite might have been revoked",
     "inviteErrorTypo": "There could be a typo in the invite link",
-    "pangolinSetup": "Setup - Pangolin",
+    "pangolinSetup": "Setup",
     "orgNameRequired": "Organization name is required",
     "orgIdRequired": "Organization ID is required",
     "orgErrorCreate": "An error occurred while creating org",
