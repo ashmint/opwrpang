@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN if [ "$DATABASE" = "pg" ]; then npx drizzle-kit generate --dialect postgresq
 RUN npm run build:$DATABASE
 RUN npm run build:cli
 
-FROM node:22-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 
