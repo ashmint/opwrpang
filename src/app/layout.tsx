@@ -17,7 +17,7 @@ import { getLocale } from "next-intl/server";
 import { Toaster } from "@app/components/ui/toaster";
 
 export const metadata: Metadata = {
-    title: `Dashboard - Pangolin`,
+    title: `Dashboard`,
     description: "",
 };
 

@@ -110,15 +110,7 @@ export const adminNavSections: SidebarNavSection[] = [
     {
         heading: "Admin",
         items: [
-            ...(build == "oss"
-                ? [
-                      {
-                          title: "managedSelfhosted",
-                          href: "/admin/managed",
-                          icon: <Zap className="h-4 w-4" />
-                      }
-                  ]
-                : []),
+            
             {
                 title: "sidebarAllUsers",
                 href: "/admin/users",
