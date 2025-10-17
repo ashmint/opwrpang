@@ -15,7 +15,7 @@ export default async function migration() {
     try {
         db.transaction((trx) => {
             trx.run(
-                sql`ALTER TABLE 'resources' ADD 'enabled' integer DEFAULT true NOT NULL;`
+                sql`ALTER TABLE 'resources' ADD COLUMN IF NOT EXISTS 'enabled' integer DEFAULT 1 NOT NULL;`
             );
         });
 
