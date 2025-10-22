@@ -295,12 +295,12 @@ export default function ResourceAuthPortal(props: ResourceAuthPortalProps) {
                         <span className="text-sm text-muted-foreground">
                             {t("poweredBy")}{" "}
                             <Link
-                                href="https://github.com/fosrl/pangolin"
+                                href="https://openwire.in/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="underline"
                             >
-                                Pangolin
+                                Openwire
                             </Link>
                         </span>
                     </div>

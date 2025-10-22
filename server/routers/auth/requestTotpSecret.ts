@@ -113,7 +113,7 @@ export async function requestTotpSecret(
         const hex = crypto.getRandomValues(new Uint8Array(20));
         const secret = encodeHex(hex);
         const uri = createTOTPKeyURI(
-            "Pangolin",
+            "Openwire-Securegate-Edge",
             user.email!,
             hex
         );
