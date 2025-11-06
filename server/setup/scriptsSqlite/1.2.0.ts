@@ -13,13 +13,24 @@ export default async function migration() {
     console.log(`Running setup script ${version}...`);
 
     try {
+        const columns = db.all(
+        sql`PRAGMA table_info('resources');`
+    );
+
+    const hasEnabledColumn = columns.some((col) => col.name === "enabled");
+
+    if (!hasEnabledColumn) {
         db.transaction((trx) => {
             trx.run(
-                sql`ALTER TABLE 'resources' ADD COLUMN IF NOT EXISTS 'enabled' integer DEFAULT 1 NOT NULL;`
+                sql`ALTER TABLE resources ADD COLUMN enabled integer DEFAULT 1 NOT NULL;`
             );
         });
+        console.log("Added 'enabled' column to resources table");
+    } else {
+        console.log("'enabled' column already exists");
+    }
 
-        console.log(`Migrated database schema`);
+    console.log(`Migrated database schema`);
     } catch (e) {
         console.log("Unable to migrate database schema");
         throw e;
