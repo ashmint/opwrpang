@@ -13,13 +13,32 @@ export default async function migration() {
     console.log(`Running setup script ${version}...`);
 
     try {
+        let columnAdded = false;
+
         db.transaction((trx) => {
-            trx.run(
-                sql`ALTER TABLE 'resources' ADD COLUMN IF NOT EXISTS 'enabled' integer DEFAULT 1 NOT NULL;`
+            const columns = trx.all(
+                sql`PRAGMA table_info('resources');`
+            ) as Array<{ name: string }>;
+
+            const hasEnabledColumn = columns.some(
+                (column) => column.name === "enabled"
             );
+
+            if (!hasEnabledColumn) {
+                trx.run(
+                    sql`ALTER TABLE 'resources' ADD 'enabled' integer DEFAULT 1 NOT NULL;`
+                );
+                columnAdded = true;
+            }
         });
 
-        console.log(`Migrated database schema`);
+        if (columnAdded) {
+            console.log(`Migrated database schema`);
+        } else {
+            console.log(
+                `Skipped database schema migration; 'enabled' column already exists`
+            );
+        }
     } catch (e) {
         console.log("Unable to migrate database schema");
         throw e;
