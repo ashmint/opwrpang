@@ -210,7 +210,10 @@ function generateIdFromEntropySize(size: number): string {
     return encodeBase32LowerCaseNoPadding(buffer);
 }
 
-function tableExists(db: Database, name: string): boolean {
+function tableExists(
+    db: InstanceType<typeof Database>,
+    name: string
+): boolean {
     const stmt = db
         .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?");
     return Boolean(stmt.get(name));
