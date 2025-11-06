@@ -12,6 +12,15 @@ const version = "1.2.0";
 export default async function migration() {
     console.log(`Running setup script ${version}...`);
 
+    type TableColumnInfo = {
+        cid: number;
+        name: string;
+        type: string;
+        notnull: number;
+        dflt_value: any;
+        pk: number;
+    };
+
     try {
         const columns = db.all(
         sql`PRAGMA table_info('resources');`
