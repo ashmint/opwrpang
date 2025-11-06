@@ -26,7 +26,7 @@ export default async function migration() {
         sql`PRAGMA table_info('resources');`
     );
 
-    const hasEnabledColumn = columns.some((col) => col.name === "enabled");
+    const hasEnabledColumn = (columns as any[]).some((col: any) => col.name === "enabled");
 
     if (!hasEnabledColumn) {
         db.transaction((trx) => {
