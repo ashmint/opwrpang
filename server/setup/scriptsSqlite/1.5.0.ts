@@ -13,14 +13,22 @@ export default async function migration() {
     const db = new Database(location);
 
     try {
-        db.pragma("foreign_keys = OFF");
-        db.transaction(() => {
-            db.exec(`
-               ALTER TABLE 'sites' ADD 'dockerSocketEnabled' integer DEFAULT true NOT NULL;
-            `);
-        })(); // <-- executes the transaction immediately
-        db.pragma("foreign_keys = ON");
-        console.log(`Migrated database schema`);
+        const alreadyMigrated = columnExists(db, "sites", "dockerSocketEnabled");
+
+        if (alreadyMigrated) {
+            console.log(
+                "Skipped database schema migration; 'dockerSocketEnabled' already exists on 'sites'"
+            );
+        } else {
+            db.pragma("foreign_keys = OFF");
+            db.transaction(() => {
+                db.exec(`
+                   ALTER TABLE 'sites' ADD 'dockerSocketEnabled' integer DEFAULT true NOT NULL;
+                `);
+            })(); // <-- executes the transaction immediately
+            db.pragma("foreign_keys = ON");
+            console.log(`Migrated database schema`);
+        }
     } catch (e) {
         console.log("Unable to migrate database schema");
         throw e;
@@ -67,4 +75,16 @@ export default async function migration() {
     }
 
     console.log(`${version} migration complete`);
+}
+
+function columnExists(
+    db: InstanceType<typeof Database>,
+    table: string,
+    column: string
+): boolean {
+    const tableName = table.replace(/'/g, "''");
+    const stmt = db.prepare(
+        `SELECT name FROM pragma_table_info('${tableName}') WHERE name = ?;`
+    );
+    return Boolean(stmt.get(column));
 }
