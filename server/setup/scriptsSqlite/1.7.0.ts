@@ -9,12 +9,18 @@ export default async function migration() {
 
     const location = path.join(APP_PATH, "db", "db.sqlite");
     const db = new Database(location);
+    const needsTables = !tableExists(db, "clientSites");
 
-    try {
-        db.pragma("foreign_keys = OFF");
+    if (!needsTables) {
+        console.log(
+            "Skipped database schema migration; client-related tables already exist"
+        );
+    } else {
+        try {
+            db.pragma("foreign_keys = OFF");
 
-        db.transaction(() => {
-            db.exec(`
+            db.transaction(() => {
+                db.exec(`
                 CREATE TABLE 'clientSites' (
                     'clientId' integer NOT NULL,
                     'siteId' integer NOT NULL,
@@ -101,87 +107,104 @@ export default async function migration() {
 
             `);
 
-            db.exec(`
-                CREATE TABLE '__new_sites' (
-                    'siteId' integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-                    'orgId' text NOT NULL,
-                    'niceId' text NOT NULL,
-                    'exitNode' integer,
-                    'name' text NOT NULL,
-                    'pubKey' text,
-                    'subnet' text,
-                    'bytesIn' integer DEFAULT 0,
-                    'bytesOut' integer DEFAULT 0,
-                    'lastBandwidthUpdate' text,
-                    'type' text NOT NULL,
-                    'online' integer DEFAULT 0 NOT NULL,
-                    'address' text,
-                    'endpoint' text,
-                    'publicKey' text,
-                    'lastHolePunch' integer,
-                    'listenPort' integer,
-                    'dockerSocketEnabled' integer DEFAULT 1 NOT NULL,
-                    FOREIGN KEY ('orgId') REFERENCES 'orgs'('orgId') ON UPDATE no action ON DELETE cascade,
-                    FOREIGN KEY ('exitNode') REFERENCES 'exitNodes'('exitNodeId') ON UPDATE no action ON DELETE set null
-                );
+                db.exec(`
+                    CREATE TABLE '__new_sites' (
+                        'siteId' integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        'orgId' text NOT NULL,
+                        'niceId' text NOT NULL,
+                        'exitNode' integer,
+                        'name' text NOT NULL,
+                        'pubKey' text,
+                        'subnet' text,
+                        'bytesIn' integer DEFAULT 0,
+                        'bytesOut' integer DEFAULT 0,
+                        'lastBandwidthUpdate' text,
+                        'type' text NOT NULL,
+                        'online' integer DEFAULT 0 NOT NULL,
+                        'address' text,
+                        'endpoint' text,
+                        'publicKey' text,
+                        'lastHolePunch' integer,
+                        'listenPort' integer,
+                        'dockerSocketEnabled' integer DEFAULT 1 NOT NULL,
+                        FOREIGN KEY ('orgId') REFERENCES 'orgs'('orgId') ON UPDATE no action ON DELETE cascade,
+                        FOREIGN KEY ('exitNode') REFERENCES 'exitNodes'('exitNodeId') ON UPDATE no action ON DELETE set null
+                    );
 
-                INSERT INTO '__new_sites' (
-                    'siteId', 'orgId', 'niceId', 'exitNode', 'name', 'pubKey', 'subnet', 'bytesIn', 'bytesOut', 'lastBandwidthUpdate', 'type', 'online', 'address', 'endpoint', 'publicKey', 'lastHolePunch', 'listenPort', 'dockerSocketEnabled'
-                )
-                SELECT siteId, orgId, niceId, exitNode, name, pubKey, subnet, bytesIn, bytesOut, lastBandwidthUpdate, type, online, NULL, NULL, NULL, NULL, NULL, dockerSocketEnabled
-                FROM sites;
+                    INSERT INTO '__new_sites' (
+                        'siteId', 'orgId', 'niceId', 'exitNode', 'name', 'pubKey', 'subnet', 'bytesIn', 'bytesOut', 'lastBandwidthUpdate', 'type', 'online', 'address', 'endpoint', 'publicKey', 'lastHolePunch', 'listenPort', 'dockerSocketEnabled'
+                    )
+                    SELECT siteId, orgId, niceId, exitNode, name, pubKey, subnet, bytesIn, bytesOut, lastBandwidthUpdate, type, online, NULL, NULL, NULL, NULL, NULL, dockerSocketEnabled
+                    FROM sites;
 
-                DROP TABLE 'sites';
-                ALTER TABLE '__new_sites' RENAME TO 'sites';
-            `);
+                    DROP TABLE 'sites';
+                    ALTER TABLE '__new_sites' RENAME TO 'sites';
+                `);
 
-            db.exec(`
-                ALTER TABLE 'domains' ADD 'type' text;
-                ALTER TABLE 'domains' ADD 'verified' integer DEFAULT 0 NOT NULL;
-                ALTER TABLE 'domains' ADD 'failed' integer DEFAULT 0 NOT NULL;
-                ALTER TABLE 'domains' ADD 'tries' integer DEFAULT 0 NOT NULL;
-                ALTER TABLE 'exitNodes' ADD 'maxConnections' integer;
-                ALTER TABLE 'newt' ADD 'version' text;
-                ALTER TABLE 'orgs' ADD 'subnet' text;
-                ALTER TABLE 'user' ADD 'twoFactorSetupRequested' integer DEFAULT 0;
-                ALTER TABLE 'resources' DROP COLUMN 'isBaseDomain';
-            `);
-        })();
+                db.exec(`
+                    ALTER TABLE 'domains' ADD 'type' text;
+                    ALTER TABLE 'domains' ADD 'verified' integer DEFAULT 0 NOT NULL;
+                    ALTER TABLE 'domains' ADD 'failed' integer DEFAULT 0 NOT NULL;
+                    ALTER TABLE 'domains' ADD 'tries' integer DEFAULT 0 NOT NULL;
+                    ALTER TABLE 'exitNodes' ADD 'maxConnections' integer;
+                    ALTER TABLE 'newt' ADD 'version' text;
+                    ALTER TABLE 'orgs' ADD 'subnet' text;
+                    ALTER TABLE 'user' ADD 'twoFactorSetupRequested' integer DEFAULT 0;
+                    ALTER TABLE 'resources' DROP COLUMN 'isBaseDomain';
+                `);
+            })();
 
-        db.pragma("foreign_keys = ON");
+            db.pragma("foreign_keys = ON");
 
-        console.log(`Migrated database schema`);
-    } catch (e) {
-        console.log("Unable to migrate database schema");
-        throw e;
+            console.log(`Migrated database schema`);
+        } catch (e) {
+            console.log("Unable to migrate database schema");
+            throw e;
+        }
     }
 
-    db.transaction(() => {
-        // Update all existing orgs to have the default subnet
-        db.exec(`UPDATE 'orgs' SET 'subnet' = '100.90.128.0/24'`);
+    if (needsTables) {
+        db.transaction(() => {
+            // Update all existing orgs to have the default subnet
+            db.exec(`UPDATE 'orgs' SET 'subnet' = '100.90.128.0/24'`);
 
-        // Get all orgs and their sites to assign sequential IP addresses
-        const orgs = db.prepare(`SELECT orgId FROM 'orgs'`).all() as {
-            orgId: string;
-        }[];
+            // Get all orgs and their sites to assign sequential IP addresses
+            const orgs = db.prepare(`SELECT orgId FROM 'orgs'`).all() as {
+                orgId: string;
+            }[];
 
-        for (const org of orgs) {
-            const sites = db
-                .prepare(
-                    `SELECT siteId FROM 'sites' WHERE orgId = ? ORDER BY siteId`
-                )
-                .all(org.orgId) as { siteId: number }[];
+            for (const org of orgs) {
+                const sites = db
+                    .prepare(
+                        `SELECT siteId FROM 'sites' WHERE orgId = ? ORDER BY siteId`
+                    )
+                    .all(org.orgId) as { siteId: number }[];
 
-            let ipIndex = 1;
-            for (const site of sites) {
-                const address = `100.90.128.${ipIndex}/24`;
-                db.prepare(
-                    `UPDATE 'sites' SET 'address' = ? WHERE siteId = ?`
-                ).run(address, site.siteId);
-                ipIndex++;
+                let ipIndex = 1;
+                for (const site of sites) {
+                    const address = `100.90.128.${ipIndex}/24`;
+                    db.prepare(
+                        `UPDATE 'sites' SET 'address' = ? WHERE siteId = ?`
+                    ).run(address, site.siteId);
+                    ipIndex++;
+                }
             }
-        }
-    })();
+        })();
+    } else {
+        console.log(
+            "Skipped org subnet reconfiguration; client tables already migrated"
+        );
+    }
 
     console.log(`${version} migration complete`);
+}
+
+function tableExists(
+    db: InstanceType<typeof Database>,
+    name: string
+): boolean {
+    const stmt = db.prepare(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?"
+    );
+    return Boolean(stmt.get(name));
 }
