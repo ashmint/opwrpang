@@ -9,6 +9,14 @@ export default async function migration() {
 
 	const location = path.join(APP_PATH, "db", "db.sqlite");
 	const db = new Database(location);
+	const alreadyMigrated = columnExists(db, "targets", "internalPort");
+
+	if (alreadyMigrated) {
+		console.log(
+			"Skipped database schema migration; targets table already includes internalPort"
+		);
+		return;
+	}
 
 	try {
 		db.pragma("foreign_keys = OFF");
@@ -66,4 +74,15 @@ DROP TABLE "targets_old";`);
 		console.log("Failed to migrate db:", e);
 		throw e;
 	}
+}
+
+function columnExists(
+	db: InstanceType<typeof Database>,
+	table: string,
+	column: string
+): boolean {
+	const stmt = db.prepare(
+		`SELECT name FROM pragma_table_info('${table.replace(/'/g, "''")}') WHERE name = ?`
+	);
+	return Boolean(stmt.get(column));
 }

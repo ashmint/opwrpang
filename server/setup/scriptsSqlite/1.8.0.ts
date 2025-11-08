@@ -11,20 +11,58 @@ export default async function migration() {
     const db = new Database(location);
 
     try {
+        const addedColumns: string[] = [];
+
         db.transaction(() => {
-            db.exec(`
-                ALTER TABLE 'resources' ADD 'enableProxy' integer DEFAULT 1;
-                ALTER TABLE 'sites' ADD 'remoteSubnets' text;
-                ALTER TABLE 'user' ADD 'termsAcceptedTimestamp' text;
-                ALTER TABLE 'user' ADD 'termsVersion' text;
-            `);
+            if (!columnExists(db, "resources", "enableProxy")) {
+                db.exec(
+                    `ALTER TABLE 'resources' ADD 'enableProxy' integer DEFAULT 1;`
+                );
+                addedColumns.push("resources.enableProxy");
+            }
+
+            if (!columnExists(db, "sites", "remoteSubnets")) {
+                db.exec(`ALTER TABLE 'sites' ADD 'remoteSubnets' text;`);
+                addedColumns.push("sites.remoteSubnets");
+            }
+
+            if (!columnExists(db, "user", "termsAcceptedTimestamp")) {
+                db.exec(
+                    `ALTER TABLE 'user' ADD 'termsAcceptedTimestamp' text;`
+                );
+                addedColumns.push("user.termsAcceptedTimestamp");
+            }
+
+            if (!columnExists(db, "user", "termsVersion")) {
+                db.exec(`ALTER TABLE 'user' ADD 'termsVersion' text;`);
+                addedColumns.push("user.termsVersion");
+            }
         })();
 
-        console.log("Migrated database schema");
+        if (addedColumns.length === 0) {
+            console.log(
+                "Skipped database schema migration; all columns already exist"
+            );
+        } else {
+            console.log(
+                `Migrated database schema (added: ${addedColumns.join(", ")})`
+            );
+        }
     } catch (e) {
         console.log("Unable to migrate database schema");
         throw e;
     }
 
     console.log(`${version} migration complete`);
+}
+
+function columnExists(
+    db: InstanceType<typeof Database>,
+    table: string,
+    column: string
+): boolean {
+    const stmt = db.prepare(
+        `SELECT name FROM pragma_table_info('${table.replace(/'/g, "''")}') WHERE name = ?`
+    );
+    return Boolean(stmt.get(column));
 }

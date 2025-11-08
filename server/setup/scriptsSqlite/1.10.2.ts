@@ -20,27 +20,30 @@ export default async function migration() {
 
         db.transaction(() => {
             for (const resource of resources) {
-                const headers = resource.headers;
-                if (headers && headers !== "") {
-                    // lets convert it to json
-                    // fist split at commas
-                    const headersArray = headers
-                        .split(",")
-                        .map((header: string) => {
-                            const [name, ...valueParts] = header.split(":");
-                            const value = valueParts.join(":").trim();
-                            return { name: name.trim(), value };
-                        });
-
-                    db.prepare(
-                        `
-                            UPDATE "resources" SET "headers" = ? WHERE "resourceId" = ?`
-                    ).run(JSON.stringify(headersArray), resource.resourceId);
-
-                    console.log(
-                        `Updated resource ${resource.resourceId} headers to JSON format`
-                    );
+                const headers = resource.headers?.trim();
+                if (!headers) {
+                    continue;
                 }
+
+                if (isJsonArray(headers)) {
+                    continue;
+                }
+
+                // Convert comma-separated headers into JSON array
+                const headersArray = headers.split(",").map((header: string) => {
+                    const [name, ...valueParts] = header.split(":");
+                    const value = valueParts.join(":").trim();
+                    return { name: name.trim(), value };
+                });
+
+                db.prepare(
+                    `
+                            UPDATE "resources" SET "headers" = ? WHERE "resourceId" = ?`
+                ).run(JSON.stringify(headersArray), resource.resourceId);
+
+                console.log(
+                    `Updated resource ${resource.resourceId} headers to JSON format`
+                );
             }
         })();
 
@@ -50,5 +53,14 @@ export default async function migration() {
     } catch (e) {
         console.log("Failed to migrate db:", e);
         throw e;
+    }
+}
+
+function isJsonArray(value: string): boolean {
+    try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed);
+    } catch {
+        return false;
     }
 }

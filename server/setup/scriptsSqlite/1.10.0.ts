@@ -10,6 +10,14 @@ export default async function migration() {
 
     const location = path.join(APP_PATH, "db", "db.sqlite");
     const db = new Database(location);
+    const alreadyMigrated = columnExists(db, "resources", "niceId");
+
+    if (alreadyMigrated) {
+        console.log(
+            "Skipped database schema migration; resource niceId column already exists"
+        );
+        return;
+    }
 
     try {
         const resources = db
@@ -133,4 +141,15 @@ export function generateName(): string {
 
     // clean out any non-alphanumeric characters except for dashes
     return name.replace(/[^a-z0-9-]/g, "");
+}
+
+function columnExists(
+    db: InstanceType<typeof Database>,
+    table: string,
+    column: string
+): boolean {
+    const stmt = db.prepare(
+        `SELECT name FROM pragma_table_info('${table.replace(/'/g, "''")}') WHERE name = ?`
+    );
+    return Boolean(stmt.get(column));
 }
